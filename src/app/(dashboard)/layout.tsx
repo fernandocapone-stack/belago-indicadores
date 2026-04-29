@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { DashboardShell } from "@/components/dashboard-shell";
 import { derivePeriods, loadMeasurements } from "@/lib/data-source";
 import { createClient } from "@/lib/supabase/server";

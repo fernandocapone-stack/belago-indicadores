@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -89,7 +89,9 @@ export function DashboardShell({
             {getPageTitle(pathname)}
           </h1>
           {shouldShowFilter(pathname) && (
-            <PeriodFilter defaultPeriod={defaultPeriod} periods={periods} />
+            <Suspense fallback={null}>
+              <PeriodFilter defaultPeriod={defaultPeriod} periods={periods} />
+            </Suspense>
           )}
         </header>
         <main className="flex-1 px-4 md:px-6 py-6">{children}</main>
