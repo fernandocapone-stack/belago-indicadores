@@ -1,0 +1,10 @@
+node_modules
+.next
+.next/dev
+.env*.local
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+__pycache__
+*.pyc
+.claude/
