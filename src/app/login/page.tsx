@@ -47,7 +47,7 @@ function LoginForm() {
           <p className="mt-1 text-sm font-medium text-muted-foreground">Painel de Indicadores</p>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-8 shadow-sm space-y-6">
+        <div className="rounded-xl border border-border bg-card p-8 space-y-6">
           <p className="text-sm text-muted-foreground text-center">Entre com sua conta</p>
 
           {!SUPABASE_ENABLED && (
