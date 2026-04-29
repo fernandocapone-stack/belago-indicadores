@@ -43,11 +43,9 @@ function LoginForm() {
     <div className="flex h-full flex-col items-center justify-center bg-background p-8">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <div className="mx-auto mb-4 size-12 rounded-xl bg-primary text-primary-foreground grid place-items-center font-bold text-xl">
-            B
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Belago Indicadores</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">Entre com sua conta</p>
+          <h1 className="text-3xl font-bold tracking-tight">Belago</h1>
+          <p className="mt-1 text-sm font-medium text-muted-foreground">Painel de Indicadores</p>
+          <p className="mt-6 text-sm text-muted-foreground">Entre com sua conta</p>
         </div>
 
         {!SUPABASE_ENABLED && (
