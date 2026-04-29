@@ -41,22 +41,24 @@ function LoginForm() {
 
   return (
     <div className="flex h-full flex-col items-center justify-center bg-background p-8">
-      <div className="w-full max-w-sm space-y-8">
-        <div className="text-center">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Belago</h1>
           <p className="mt-1 text-sm font-medium text-muted-foreground">Painel de Indicadores</p>
-          <p className="mt-6 text-sm text-muted-foreground">Entre com sua conta</p>
         </div>
 
-        {!SUPABASE_ENABLED && (
-          <div className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
-            Supabase não está configurado. Defina <code>NEXT_PUBLIC_SUPABASE_URL</code> e{" "}
-            <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> no <code>.env.local</code> e reinicie o
-            servidor.
-          </div>
-        )}
+        <div className="rounded-xl border border-border bg-card p-8 shadow-sm space-y-6">
+          <p className="text-sm text-muted-foreground text-center">Entre com sua conta</p>
 
-        <form onSubmit={handleEntrar} className="space-y-4">
+          {!SUPABASE_ENABLED && (
+            <div className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
+              Supabase não está configurado. Defina <code>NEXT_PUBLIC_SUPABASE_URL</code> e{" "}
+              <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> no <code>.env.local</code> e reinicie o
+              servidor.
+            </div>
+          )}
+
+          <form onSubmit={handleEntrar} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="email">E-mail</Label>
             <Input
@@ -98,6 +100,7 @@ function LoginForm() {
             )}
           </Button>
         </form>
+        </div>
       </div>
     </div>
   );
