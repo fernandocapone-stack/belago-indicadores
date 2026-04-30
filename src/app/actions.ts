@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { SUPABASE_ENABLED } from "@/lib/supabase/config";
 import { loadMeasurements, getValueAt } from "@/lib/data-source";
 import { INDICATORS } from "@/lib/indicators";
@@ -22,14 +23,16 @@ export async function saveMedicao(
     return { ok: false, error: "Período inválido" };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Sessão expirada" };
+  // Verificar sessão com cliente anon (lê os cookies do usuário)
+  const userClient = await createClient();
+  const { data: { user } } = await userClient.auth.getUser();
+  if (!user) return { ok: false, error: "Sessão expirada. Faça login novamente." };
+
+  // Usar admin client para escrita — bypass RLS após auth verificado
+  const admin = createAdminClient();
 
   if (value === null || Number.isNaN(value)) {
-    const { error } = await supabase
+    const { error } = await admin
       .from("medicoes")
       .delete()
       .eq("indicator_id", indicatorId)
@@ -39,7 +42,7 @@ export async function saveMedicao(
     return { ok: true, value: 0 };
   }
 
-  const { error } = await supabase
+  const { error } = await admin
     .from("medicoes")
     .upsert(
       { indicator_id: indicatorId, period, value, updated_by: user.id, updated_at: new Date().toISOString() },

@@ -55,9 +55,15 @@ function parseInput(raw: string, kind: Indicator["kind"]): number | null {
 }
 
 function placeholderFor(kind: Indicator["kind"]): string {
-  if (kind === "time") return "mm:ss ou hh:mm:ss";
+  if (kind === "time") return "ex: 05:32";
   if (kind === "percent") return "ex: 85,5";
   return "ex: 1234";
+}
+
+function hintFor(kind: Indicator["kind"]): string {
+  if (kind === "time") return "mm:ss ou hh:mm:ss";
+  if (kind === "percent") return "número de 0 a 100";
+  return "número inteiro";
 }
 
 export function LancamentoRow({
@@ -105,44 +111,46 @@ export function LancamentoRow({
   }
 
   return (
-    <div className="flex items-center gap-3 py-2 border-b last:border-b-0">
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium truncate">{indicator.label}</div>
-        {savedValue != null && (
-          <div className="text-[11px] text-muted-foreground tabular-nums">
-            atual: {formatValue(savedValue, indicator.kind)}
+    <div className="py-2.5 border-b last:border-b-0">
+      <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium truncate">{indicator.label}</div>
+          <div className="text-[11px] text-muted-foreground">
+            {status === "error" && errorMsg
+              ? <span className="text-destructive">{errorMsg}</span>
+              : savedValue != null
+              ? <span className="tabular-nums">atual: {formatValue(savedValue, indicator.kind)}</span>
+              : <span>{hintFor(indicator.kind)}</span>
+            }
           </div>
-        )}
-      </div>
-      <div className="relative">
-        <input
-          value={raw}
-          onChange={(e) => {
-            setRaw(e.target.value);
-            if (status === "error" || status === "saved") setStatus("idle");
-          }}
-          onBlur={() => commit(raw)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-          }}
-          placeholder={placeholderFor(indicator.kind)}
-          className={cn(
-            "h-9 w-44 rounded-lg border bg-background px-3 pr-9 text-sm tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors",
-            status === "error" ? "border-destructive" : "border-border"
-          )}
-          inputMode={indicator.kind === "integer" ? "numeric" : "decimal"}
-        />
-        <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
-          {status === "saving" && (
-            <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-          )}
-          {status === "saved" && <Check className="size-3.5 text-success" />}
-          {status === "error" && <X className="size-3.5 text-destructive" />}
+        </div>
+        <div className="relative shrink-0">
+          <input
+            value={raw}
+            onChange={(e) => {
+              setRaw(e.target.value);
+              if (status === "error" || status === "saved") setStatus("idle");
+            }}
+            onBlur={() => commit(raw)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+            }}
+            placeholder={placeholderFor(indicator.kind)}
+            className={cn(
+              "h-9 w-36 rounded-lg border bg-background px-3 pr-9 text-sm tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors",
+              status === "error" ? "border-destructive" : "border-border"
+            )}
+            inputMode={indicator.kind === "integer" ? "numeric" : "decimal"}
+          />
+          <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
+            {status === "saving" && (
+              <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+            )}
+            {status === "saved" && <Check className="size-3.5 text-success" />}
+            {status === "error" && <X className="size-3.5 text-destructive" />}
+          </div>
         </div>
       </div>
-      {errorMsg && status === "error" && (
-        <div className="text-[11px] text-destructive shrink-0 w-32">{errorMsg}</div>
-      )}
     </div>
   );
 }
