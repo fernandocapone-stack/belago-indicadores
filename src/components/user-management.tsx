@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { removerUsuario, alterarRole, type UserItem } from "@/app/actions";
 import { type Role, ROLE_OPTIONS, ROLE_LABELS } from "@/lib/roles";
@@ -91,35 +91,38 @@ export function UserManagement({
                 <div className="flex items-center gap-2 shrink-0">
                   {/* Seletor de role inline */}
                   {!isCurrentUser && (
-                    <div className="flex items-center justify-center w-[72px]">
+                    <div className="relative flex items-center">
                       {isChangingRole ? (
                         <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
                       ) : (
-                        <select
-                          value={u.role}
-                          onChange={(e) => handleRoleChange(u, e.target.value as Role)}
-                          className="h-7 w-full rounded-md border border-border bg-background px-2 text-xs text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors cursor-pointer hover:border-foreground/30"
-                        >
-                          {ROLE_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
+                        <>
+                          <select
+                            value={u.role}
+                            onChange={(e) => handleRoleChange(u, e.target.value as Role)}
+                            className="h-7 appearance-none rounded-md border border-border bg-background pl-2.5 pr-7 text-xs text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors cursor-pointer hover:border-foreground/30"
+                          >
+                            {ROLE_OPTIONS.map((opt) => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown className="pointer-events-none absolute right-2 size-3 text-muted-foreground" />
+                        </>
                       )}
                     </div>
                   )}
 
-                  {/* Botão remover */}
+                  {/* Botão remover — só ícone */}
                   <button
                     type="button"
                     onClick={() => handleRemove(u)}
                     disabled={isCurrentUser || isRemoving}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
+                      "flex items-center justify-center rounded-md p-1.5 transition-colors",
                       isCurrentUser
-                        ? "text-muted-foreground/40 cursor-not-allowed"
-                        : "text-destructive hover:bg-destructive/10"
+                        ? "text-muted-foreground/30 cursor-not-allowed"
+                        : "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     )}
                     title={isCurrentUser ? "Não é possível remover sua própria conta" : "Remover usuário"}
                   >
@@ -128,7 +131,6 @@ export function UserManagement({
                     ) : (
                       <Trash2 className="size-3.5" />
                     )}
-                    {!isRemoving && "Remover"}
                   </button>
                 </div>
               </div>

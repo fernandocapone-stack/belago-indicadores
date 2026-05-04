@@ -59,7 +59,7 @@ export function UserCreateDrawer() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+        className="flex items-center gap-2 rounded-md border border-border bg-foreground/8 px-3 py-1.5 text-sm font-medium text-foreground hover:bg-foreground/12 transition-colors"
       >
         <UserPlus className="size-4" />
         Adicionar Usuário
