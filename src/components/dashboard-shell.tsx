@@ -11,6 +11,7 @@ import {
   Layers,
   CalendarClock,
   ChevronUp,
+  ChevronLeft,
   Settings,
   LogOut,
   UserRound,
@@ -92,9 +93,19 @@ export function DashboardShell({
       </aside>
       <div className="flex-1 flex flex-col min-w-0">
         <header className="relative h-16 border-b flex items-center px-4 md:px-6 bg-background/80 backdrop-blur sticky top-0 z-10">
-          <h1 className="text-lg md:text-xl font-semibold tracking-tight shrink-0">
-            {getPageTitle(pathname)}
-          </h1>
+          <div className="flex items-center gap-2 shrink-0">
+            {pathname.startsWith("/configuracoes") && (
+              <Link
+                href="/"
+                className="flex items-center justify-center rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              >
+                <ChevronLeft className="size-5" />
+              </Link>
+            )}
+            <h1 className="text-lg md:text-xl font-semibold tracking-tight">
+              {getPageTitle(pathname)}
+            </h1>
+          </div>
           {pathname.startsWith("/configuracoes") ? (
             <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1">
               {CONFIG_TABS.map((tab) => {
