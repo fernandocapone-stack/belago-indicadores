@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import { criarUsuario } from "@/app/actions";
 import { type Role, ROLE_OPTIONS } from "@/lib/roles";
+import { RoleSelect } from "./role-select";
 
 export function UserCreateDrawer() {
   const [open, setOpen] = useState(false);
@@ -135,18 +136,12 @@ export function UserCreateDrawer() {
               {/* Perfil */}
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">Perfil</label>
-                <select
+                <RoleSelect
                   value={role}
-                  onChange={(e) => setRole(e.target.value as Role)}
+                  onChange={setRole}
                   disabled={creating}
-                  className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  {ROLE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                  fullWidth
+                />
                 <p className="text-xs text-muted-foreground">{roleDescription[role]}</p>
               </div>
             </div>

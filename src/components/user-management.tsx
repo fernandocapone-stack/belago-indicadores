@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, Trash2, ChevronDown } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { removerUsuario, alterarRole, type UserItem } from "@/app/actions";
-import { type Role, ROLE_OPTIONS, ROLE_LABELS } from "@/lib/roles";
+import { type Role, ROLE_LABELS } from "@/lib/roles";
 import { UserCreateDrawer } from "./user-create-drawer";
+import { RoleSelect } from "./role-select";
 import { cn } from "@/lib/utils";
 
 const ROLE_BADGE: Record<Role, string> = {
@@ -91,24 +92,16 @@ export function UserManagement({
                 <div className="flex items-center gap-2 shrink-0">
                   {/* Seletor de role inline */}
                   {!isCurrentUser && (
-                    <div className="relative flex items-center">
+                    <div className="flex items-center">
                       {isChangingRole ? (
-                        <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+                        <div className="flex h-7 w-[80px] items-center justify-center">
+                          <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+                        </div>
                       ) : (
-                        <>
-                          <select
-                            value={u.role}
-                            onChange={(e) => handleRoleChange(u, e.target.value as Role)}
-                            className="h-7 appearance-none rounded-md border border-border bg-background pl-2.5 pr-7 text-xs text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors cursor-pointer hover:border-foreground/30"
-                          >
-                            {ROLE_OPTIONS.map((opt) => (
-                              <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown className="pointer-events-none absolute right-2 size-3 text-muted-foreground" />
-                        </>
+                        <RoleSelect
+                          value={u.role}
+                          onChange={(newRole) => handleRoleChange(u, newRole)}
+                        />
                       )}
                     </div>
                   )}
