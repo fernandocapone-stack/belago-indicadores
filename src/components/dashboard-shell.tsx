@@ -35,10 +35,11 @@ const PAGE_TITLES: Record<string, string> = {
   "/admin/lancamento": "Lançamento Mensal",
 };
 
-const HIDE_FILTER_PATHS = ["/configuracoes", "/admin/lancamento"];
+const HIDE_FILTER_PREFIXES = ["/configuracoes", "/admin/lancamento"];
 
 function getPageTitle(pathname: string): string {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
+  if (pathname.startsWith("/configuracoes")) return "Configurações";
   const match = NAV.filter((n) => n.href !== "/" && pathname.startsWith(n.href)).sort(
     (a, b) => b.href.length - a.href.length
   )[0];
@@ -46,7 +47,7 @@ function getPageTitle(pathname: string): string {
 }
 
 function shouldShowFilter(pathname: string): boolean {
-  return !HIDE_FILTER_PATHS.includes(pathname);
+  return !HIDE_FILTER_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
 function getInitial(email: string): string {
