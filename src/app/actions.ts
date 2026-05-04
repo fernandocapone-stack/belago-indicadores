@@ -6,6 +6,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { SUPABASE_ENABLED } from "@/lib/supabase/config";
 import { loadMeasurements, getValueAt } from "@/lib/data-source";
 import { INDICATORS } from "@/lib/indicators";
+import { type Role, getRoleFromMetadata } from "@/lib/roles";
+
+export type { Role };
 
 export type SaveResult =
   | { ok: true; value: number }
@@ -23,10 +26,15 @@ export async function saveMedicao(
     return { ok: false, error: "Período inválido" };
   }
 
-  // Verificar sessão com cliente anon (lê os cookies do usuário)
+  // Verificar sessão e role
   const userClient = await createClient();
   const { data: { user } } = await userClient.auth.getUser();
   if (!user) return { ok: false, error: "Sessão expirada. Faça login novamente." };
+
+  const role = getRoleFromMetadata(user.app_metadata);
+  if (role === "usuario") {
+    return { ok: false, error: "Sem permissão para lançar dados." };
+  }
 
   // Usar admin client para escrita — bypass RLS após auth verificado
   const admin = createAdminClient();
@@ -63,7 +71,12 @@ export async function getMedicoesPorPeriodo(
   );
 }
 
-export type UserItem = { id: string; email: string; created_at: string };
+export type UserItem = {
+  id: string;
+  email: string;
+  created_at: string;
+  role: Role;
+};
 
 export async function listarUsuarios(): Promise<UserItem[]> {
   if (!SUPABASE_ENABLED) return [];
@@ -75,6 +88,7 @@ export async function listarUsuarios(): Promise<UserItem[]> {
       id: u.id,
       email: u.email ?? "",
       created_at: u.created_at,
+      role: getRoleFromMetadata(u.app_metadata as Record<string, unknown>),
     }));
   } catch {
     return [];
@@ -83,14 +97,24 @@ export async function listarUsuarios(): Promise<UserItem[]> {
 
 export async function criarUsuario(
   email: string,
-  password: string
+  password: string,
+  role: Role = "usuario"
 ): Promise<{ ok: boolean; error?: string }> {
   if (!SUPABASE_ENABLED) return { ok: false, error: "Supabase não configurado" };
+
+  // Verificar se quem chama é admin
+  const userClient = await createClient();
+  const { data: { user } } = await userClient.auth.getUser();
+  if (!user) return { ok: false, error: "Sessão expirada." };
+  const callerRole = getRoleFromMetadata(user.app_metadata);
+  if (callerRole !== "admin") return { ok: false, error: "Sem permissão para criar usuários." };
+
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
+    app_metadata: { role },
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/configuracoes");
@@ -102,13 +126,45 @@ export async function removerUsuario(
 ): Promise<{ ok: boolean; error?: string }> {
   if (!SUPABASE_ENABLED) return { ok: false, error: "Supabase não configurado" };
 
-  // Impede o admin de se auto-remover
   const userClient = await createClient();
   const { data: { user } } = await userClient.auth.getUser();
-  if (user?.id === userId) return { ok: false, error: "Você não pode remover sua própria conta." };
+  if (!user) return { ok: false, error: "Sessão expirada." };
+
+  // Impede auto-remoção
+  if (user.id === userId) return { ok: false, error: "Você não pode remover sua própria conta." };
+
+  // Verificar se quem chama é admin
+  const callerRole = getRoleFromMetadata(user.app_metadata);
+  if (callerRole !== "admin") return { ok: false, error: "Sem permissão para remover usuários." };
 
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.deleteUser(userId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/configuracoes");
+  return { ok: true };
+}
+
+export async function alterarRole(
+  userId: string,
+  role: Role
+): Promise<{ ok: boolean; error?: string }> {
+  if (!SUPABASE_ENABLED) return { ok: false, error: "Supabase não configurado" };
+
+  const userClient = await createClient();
+  const { data: { user } } = await userClient.auth.getUser();
+  if (!user) return { ok: false, error: "Sessão expirada." };
+
+  // Verificar se quem chama é admin
+  const callerRole = getRoleFromMetadata(user.app_metadata);
+  if (callerRole !== "admin") return { ok: false, error: "Sem permissão para alterar perfis." };
+
+  // Impede alterar o próprio perfil
+  if (user.id === userId) return { ok: false, error: "Você não pode alterar seu próprio perfil." };
+
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.updateUserById(userId, {
+    app_metadata: { role },
+  });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/configuracoes");
   return { ok: true };

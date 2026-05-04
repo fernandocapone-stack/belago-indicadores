@@ -4,6 +4,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { derivePeriods, loadMeasurements } from "@/lib/data-source";
 import { createClient } from "@/lib/supabase/server";
 import { SUPABASE_ENABLED } from "@/lib/supabase/config";
+import { type Role, getRoleFromMetadata } from "@/lib/roles";
 
 function buildPeriodOptions(dataPeriods: string[]): string[] {
   const set = new Set(dataPeriods);
@@ -15,14 +16,16 @@ function buildPeriodOptions(dataPeriods: string[]): string[] {
   return Array.from(set).sort();
 }
 
-async function getUserEmail(): Promise<string | null> {
-  if (!SUPABASE_ENABLED) return null;
+async function getUserInfo(): Promise<{ email: string | null; role: Role }> {
+  if (!SUPABASE_ENABLED) return { email: null, role: "admin" };
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
-    return data.user?.email ?? null;
+    const email = data.user?.email ?? null;
+    const role = getRoleFromMetadata(data.user?.app_metadata as Record<string, unknown> | null);
+    return { email, role };
   } catch {
-    return null;
+    return { email: null, role: "admin" };
   }
 }
 
@@ -31,7 +34,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const dataPeriods = derivePeriods(map);
   const periods = buildPeriodOptions(dataPeriods);
   const defaultPeriod = dataPeriods[dataPeriods.length - 1] ?? periods[periods.length - 1];
-  const userEmail = await getUserEmail();
+  const { email: userEmail, role: userRole } = await getUserInfo();
 
   const lastDataPeriod = dataPeriods[dataPeriods.length - 1] ?? "";
 
@@ -41,6 +44,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       defaultPeriod={defaultPeriod}
       lastDataPeriod={lastDataPeriod}
       userEmail={userEmail}
+      userRole={userRole}
     >
       {children}
     </DashboardShell>

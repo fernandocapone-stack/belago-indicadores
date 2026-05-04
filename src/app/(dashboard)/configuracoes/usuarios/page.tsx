@@ -1,31 +1,49 @@
+import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserManagement } from "@/components/user-management";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SUPABASE_ENABLED } from "@/lib/supabase/config";
+import { getRoleFromMetadata } from "@/lib/roles";
 import type { UserItem } from "@/app/actions";
 
-async function getPageData(): Promise<{ userId: string; users: UserItem[] }> {
+async function getPageData(): Promise<{ userId: string; users: UserItem[] } | null> {
   if (!SUPABASE_ENABLED) return { userId: "", users: [] };
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
-    const userId = data.user?.id ?? "";
+    const user = data.user;
+    if (!user) return null;
+
+    // Guard: apenas admin pode acessar esta página
+    const role = getRoleFromMetadata(user.app_metadata as Record<string, unknown>);
+    if (role !== "admin") return null;
 
     const admin = createAdminClient();
     const { data: usersData } = await admin.auth.admin.listUsers();
     const users: UserItem[] = (usersData?.users ?? [])
-      .map((u) => ({ id: u.id, email: u.email ?? "", created_at: u.created_at }))
+      .map((u) => ({
+        id: u.id,
+        email: u.email ?? "",
+        created_at: u.created_at,
+        role: getRoleFromMetadata(u.app_metadata as Record<string, unknown>),
+      }))
       .sort((a, b) => a.email.localeCompare(b.email));
 
-    return { userId, users };
+    return { userId: user.id, users };
   } catch {
-    return { userId: "", users: [] };
+    return null;
   }
 }
 
 export default async function UsuariosPage() {
-  const { userId, users } = await getPageData();
+  const data = await getPageData();
+
+  if (!data) {
+    redirect("/configuracoes/preferencias");
+  }
+
+  const { userId, users } = data;
 
   return (
     <Card>

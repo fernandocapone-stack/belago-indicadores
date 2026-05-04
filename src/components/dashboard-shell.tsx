@@ -21,6 +21,7 @@ import { signOut } from "@/app/actions";
 import { PeriodFilter } from "./period-filter";
 import { Separator } from "./ui/separator";
 import { LancamentoDrawer } from "./lancamento-drawer";
+import type { Role } from "@/lib/roles";
 
 const NAV = [
   { href: "/", label: "Visão Geral", title: "Visão Geral", icon: Activity },
@@ -39,9 +40,9 @@ const PAGE_TITLES: Record<string, string> = {
 const HIDE_FILTER_PREFIXES = ["/configuracoes", "/admin/lancamento"];
 
 const CONFIG_TABS = [
-  { href: "/configuracoes/preferencias", label: "Preferências" },
-  { href: "/configuracoes/usuarios", label: "Usuários" },
-  { href: "/configuracoes/seguranca", label: "Segurança" },
+  { href: "/configuracoes/preferencias", label: "Preferências", roles: ["admin", "gestor", "usuario"] as Role[] },
+  { href: "/configuracoes/usuarios", label: "Usuários", roles: ["admin"] as Role[] },
+  { href: "/configuracoes/seguranca", label: "Segurança", roles: ["admin", "gestor", "usuario"] as Role[] },
 ];
 
 function getPageTitle(pathname: string): string {
@@ -67,15 +68,20 @@ export function DashboardShell({
   defaultPeriod,
   lastDataPeriod,
   userEmail,
+  userRole,
 }: {
   children: React.ReactNode;
   periods: string[];
   defaultPeriod: string;
   lastDataPeriod: string;
   userEmail: string | null;
+  userRole: Role;
 }) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const visibleConfigTabs = CONFIG_TABS.filter((tab) => tab.roles.includes(userRole));
+
   return (
     <div className="flex min-h-full">
       <aside className="hidden md:flex w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground sticky top-0 h-screen">
@@ -86,11 +92,13 @@ export function DashboardShell({
         </div>
         <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
           <NavSection items={NAV} pathname={pathname} />
-          <div className="pt-1">
-            <LancamentoDrawer periods={periods} lastDataPeriod={lastDataPeriod} />
-          </div>
+          {userRole !== "usuario" && (
+            <div className="pt-1">
+              <LancamentoDrawer periods={periods} lastDataPeriod={lastDataPeriod} />
+            </div>
+          )}
         </nav>
-        <UserDropdown email={userEmail} />
+        <UserDropdown email={userEmail} role={userRole} />
       </aside>
       <div className="flex-1 flex flex-col min-w-0">
         <header className="relative h-16 border-b flex items-center px-4 md:px-6 bg-background/80 backdrop-blur sticky top-0 z-10">
@@ -110,7 +118,7 @@ export function DashboardShell({
           </div>
           {pathname.startsWith("/configuracoes") ? (
             <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1">
-              {CONFIG_TABS.map((tab) => {
+              {visibleConfigTabs.map((tab) => {
                 const active = pathname.startsWith(tab.href);
                 return (
                   <Link
@@ -174,7 +182,7 @@ function NavSection({
   );
 }
 
-function UserDropdown({ email }: { email: string | null }) {
+function UserDropdown({ email, role }: { email: string | null; role: Role }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -196,6 +204,12 @@ function UserDropdown({ email }: { email: string | null }) {
 
   const display = email || "Carregando...";
   const initial = email ? getInitial(email) : "";
+
+  const roleLabel: Record<Role, string> = {
+    admin: "Admin",
+    gestor: "Gestor",
+    usuario: "Usuário",
+  };
 
   return (
     <div ref={ref} className="relative px-3 py-3 border-t border-sidebar-border">
@@ -231,8 +245,9 @@ function UserDropdown({ email }: { email: string | null }) {
         <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
           {initial || <UserRound className="size-3.5" />}
         </span>
-        <span className="flex-1 truncate text-left text-xs font-medium text-sidebar-foreground">
-          {display}
+        <span className="flex-1 min-w-0 text-left">
+          <span className="block truncate text-xs font-medium text-sidebar-foreground">{display}</span>
+          <span className="block text-[10px] text-muted-foreground">{roleLabel[role]}</span>
         </span>
         <ChevronUp className={cn("size-3.5 shrink-0 text-muted-foreground transition-transform", !open && "rotate-180")} />
       </button>
