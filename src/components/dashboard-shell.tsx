@@ -75,6 +75,7 @@ export function DashboardShell({
   userEmail: string | null;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   return (
     <div className="flex min-h-full">
       <aside className="hidden md:flex w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground sticky top-0 h-screen">
@@ -95,12 +96,13 @@ export function DashboardShell({
         <header className="relative h-16 border-b flex items-center px-4 md:px-6 bg-background/80 backdrop-blur sticky top-0 z-10">
           <div className="flex items-center gap-2 shrink-0">
             {pathname.startsWith("/configuracoes") && (
-              <Link
-                href="/"
+              <button
+                type="button"
+                onClick={() => router.back()}
                 className="flex items-center justify-center rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
               >
                 <ChevronLeft className="size-5" />
-              </Link>
+              </button>
             )}
             <h1 className="text-lg md:text-xl font-semibold tracking-tight">
               {getPageTitle(pathname)}
