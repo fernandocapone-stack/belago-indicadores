@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, Trash2, UserPlus } from "lucide-react";
+import { Loader2, Trash2, UserPlus, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { criarUsuario, removerUsuario, type UserItem } from "@/app/actions";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ export function UserManagement({
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [creating, startCreating] = useTransition();
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [, startRemoving] = useTransition();
@@ -66,16 +67,25 @@ export function UserManagement({
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground">Senha inicial</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="mínimo 6 caracteres"
-              minLength={6}
-              required
-              disabled={creating}
-              className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors disabled:opacity-50"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="mínimo 6 caracteres"
+                minLength={6}
+                required
+                disabled={creating}
+                className="h-9 w-full rounded-md border border-border bg-background px-3 pr-9 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors disabled:opacity-50"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute inset-y-0 right-2.5 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+              </button>
+            </div>
           </div>
         </div>
         <button

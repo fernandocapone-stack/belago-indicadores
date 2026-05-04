@@ -128,7 +128,9 @@ export function DashboardShell({
             </nav>
           ) : shouldShowFilter(pathname) ? (
             <Suspense fallback={null}>
-              <PeriodFilter defaultPeriod={defaultPeriod} periods={periods} />
+              <div className="ml-auto">
+                <PeriodFilter defaultPeriod={defaultPeriod} periods={periods} />
+              </div>
             </Suspense>
           ) : null}
         </header>
