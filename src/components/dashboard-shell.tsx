@@ -37,6 +37,12 @@ const PAGE_TITLES: Record<string, string> = {
 
 const HIDE_FILTER_PREFIXES = ["/configuracoes", "/admin/lancamento"];
 
+const CONFIG_TABS = [
+  { href: "/configuracoes/preferencias", label: "Preferências" },
+  { href: "/configuracoes/usuarios", label: "Usuários" },
+  { href: "/configuracoes/seguranca", label: "Segurança" },
+];
+
 function getPageTitle(pathname: string): string {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
   if (pathname.startsWith("/configuracoes")) return "Configurações";
@@ -85,15 +91,35 @@ export function DashboardShell({
         <UserDropdown email={userEmail} />
       </aside>
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 border-b flex items-center justify-between gap-3 px-4 md:px-6 bg-background/80 backdrop-blur sticky top-0 z-10">
-          <h1 className="text-lg md:text-xl font-semibold tracking-tight truncate">
+        <header className="h-16 border-b flex items-center justify-between gap-4 px-4 md:px-6 bg-background/80 backdrop-blur sticky top-0 z-10">
+          <h1 className="text-lg md:text-xl font-semibold tracking-tight shrink-0">
             {getPageTitle(pathname)}
           </h1>
-          {shouldShowFilter(pathname) && (
+          {pathname.startsWith("/configuracoes") ? (
+            <nav className="flex items-center gap-1">
+              {CONFIG_TABS.map((tab) => {
+                const active = pathname.startsWith(tab.href);
+                return (
+                  <Link
+                    key={tab.href}
+                    href={tab.href}
+                    className={cn(
+                      "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                      active
+                        ? "bg-foreground/8 text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                    )}
+                  >
+                    {tab.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          ) : shouldShowFilter(pathname) ? (
             <Suspense fallback={null}>
               <PeriodFilter defaultPeriod={defaultPeriod} periods={periods} />
             </Suspense>
-          )}
+          ) : null}
         </header>
         <main className="flex-1 px-4 md:px-6 py-6">{children}</main>
       </div>
