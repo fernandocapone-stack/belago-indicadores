@@ -8,8 +8,6 @@ import { loadMeasurements, getValueAt } from "@/lib/data-source";
 import { INDICATORS } from "@/lib/indicators";
 import { type Role, getRoleFromMetadata } from "@/lib/roles";
 
-export type { Role };
-
 export type SaveResult =
   | { ok: true; value: number }
   | { ok: false; error: string };
