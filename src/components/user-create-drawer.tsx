@@ -158,7 +158,7 @@ export function UserCreateDrawer() {
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-md border border-border bg-foreground/8 px-4 py-2 text-sm font-medium text-foreground hover:bg-foreground/12 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {creating && <Loader2 className="size-4 animate-spin" />}
                 {creating ? "Criando…" : "Criar Usuário"}
