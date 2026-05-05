@@ -80,6 +80,14 @@ export function DashboardShell({
   const pathname = usePathname();
   const router = useRouter();
 
+  // Guarda o último pathname fora de configurações para o botão Voltar
+  const prevPathRef = useRef("/");
+  useEffect(() => {
+    if (!pathname.startsWith("/configuracoes")) {
+      prevPathRef.current = pathname;
+    }
+  }, [pathname]);
+
   const visibleConfigTabs = CONFIG_TABS.filter((tab) => tab.roles.includes(userRole));
 
   return (
@@ -106,7 +114,7 @@ export function DashboardShell({
             {pathname.startsWith("/configuracoes") && (
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={() => router.push(prevPathRef.current)}
                 className="flex items-center justify-center rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
               >
                 <ChevronLeft className="size-5" />
