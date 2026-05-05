@@ -141,6 +141,7 @@ export function UserCreateDrawer() {
                   onChange={setRole}
                   disabled={creating}
                   fullWidth
+                  noPortal
                 />
                 <p className="text-xs text-muted-foreground">{roleDescription[role]}</p>
               </div>

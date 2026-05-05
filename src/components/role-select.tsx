@@ -10,12 +10,44 @@ export function RoleSelect({
   onChange,
   disabled,
   fullWidth,
+  noPortal,
 }: {
   value: Role;
   onChange: (role: Role) => void;
   disabled?: boolean;
   fullWidth?: boolean;
+  /** Usar quando o componente está dentro de um Dialog/Sheet — evita conflito de focus trap */
+  noPortal?: boolean;
 }) {
+  const positioner = (
+    <Select.Positioner sideOffset={4} align="start">
+      <Select.Popup
+        className={cn(
+          "z-50 overflow-hidden rounded-lg border border-border bg-popover shadow-md outline-none",
+          "transition-[opacity,scale] duration-100 ease-in",
+          "data-starting-style:opacity-0 data-starting-style:scale-95",
+          "data-ending-style:opacity-0 data-ending-style:scale-95",
+          fullWidth && "w-[var(--anchor-width)]"
+        )}
+      >
+        <Select.List className="p-1">
+          {ROLE_OPTIONS.map((opt) => (
+            <Select.Item
+              key={opt.value}
+              value={opt.value}
+              className="flex cursor-default select-none items-center justify-between gap-3 rounded-md px-2.5 py-1.5 text-sm text-popover-foreground outline-none data-highlighted:bg-accent data-highlighted:text-foreground"
+            >
+              <Select.ItemText>{opt.label}</Select.ItemText>
+              <Select.ItemIndicator className="text-foreground">
+                <Check className="size-3.5" />
+              </Select.ItemIndicator>
+            </Select.Item>
+          ))}
+        </Select.List>
+      </Select.Popup>
+    </Select.Positioner>
+  );
+
   return (
     <Select.Root value={value} onValueChange={(v) => onChange(v as Role)}>
       <Select.Trigger
@@ -31,34 +63,7 @@ export function RoleSelect({
         <ChevronDown className={cn("shrink-0 text-muted-foreground", fullWidth ? "size-4" : "size-3")} />
       </Select.Trigger>
 
-      <Select.Portal>
-        <Select.Positioner sideOffset={4} align="start">
-          <Select.Popup
-            className={cn(
-              "z-50 overflow-hidden rounded-lg border border-border bg-popover shadow-md outline-none",
-              "transition-[opacity,scale] duration-100 ease-in",
-              "data-starting-style:opacity-0 data-starting-style:scale-95",
-              "data-ending-style:opacity-0 data-ending-style:scale-95",
-              fullWidth && "w-[var(--anchor-width)]"
-            )}
-          >
-            <Select.List className="p-1">
-              {ROLE_OPTIONS.map((opt) => (
-                <Select.Item
-                  key={opt.value}
-                  value={opt.value}
-                  className="flex cursor-default select-none items-center justify-between gap-3 rounded-md px-2.5 py-1.5 text-sm text-popover-foreground outline-none data-highlighted:bg-accent data-highlighted:text-foreground"
-                >
-                  <Select.ItemText>{opt.label}</Select.ItemText>
-                  <Select.ItemIndicator className="text-foreground">
-                    <Check className="size-3.5" />
-                  </Select.ItemIndicator>
-                </Select.Item>
-              ))}
-            </Select.List>
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Portal>
+      {noPortal ? positioner : <Select.Portal>{positioner}</Select.Portal>}
     </Select.Root>
   );
 }
