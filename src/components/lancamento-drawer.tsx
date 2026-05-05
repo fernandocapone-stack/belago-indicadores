@@ -130,13 +130,13 @@ export function LancamentoDrawer({
   const isEditing = !loading && initialFilledRef.current > 0;
   const hasChanges = savedCount > 0;
 
-  function handleSaveAndClose() {
+  function handleSave() {
     const label = selectedPeriod ? capitalize(formatPeriodLong(selectedPeriod)) : "período";
     toast.success(`Lançamento salvo — ${label}`, {
       description: `${savedCount} campo${savedCount !== 1 ? "s" : ""} atualizado${savedCount !== 1 ? "s" : ""}`,
       duration: 4000,
     });
-    setOpen(false);
+    setSavedCount(0);
   }
 
   function handleCancel() {
@@ -347,16 +347,16 @@ export function LancamentoDrawer({
               </button>
               <button
                 type="button"
-                onClick={hasChanges ? handleSaveAndClose : undefined}
+                onClick={hasChanges ? handleSave : undefined}
                 disabled={!hasChanges}
                 className={cn(
-                  "rounded-md px-4 py-2 text-sm font-medium transition-colors",
+                  "rounded-md border border-border px-4 py-2 text-sm font-medium transition-colors",
                   hasChanges
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : "border border-border text-muted-foreground opacity-50 cursor-not-allowed"
+                    ? "bg-foreground/8 text-foreground hover:bg-foreground/12"
+                    : "text-muted-foreground opacity-50 cursor-not-allowed"
                 )}
               >
-                Salvar e Fechar
+                Salvar
               </button>
             </div>
           </div>
